@@ -35,7 +35,7 @@ export interface ParsedRoute {
 // Compound Route Types (new format)
 // =============================================================================
 
-export type NavigatorType = 'sessions' | 'sources' | 'skills' | 'automations' | 'tasks' | 'skillCrew' | 'settings'
+export type NavigatorType = 'sessions' | 'sources' | 'skills' | 'automations' | 'tasks' | 'skillCrew' | 'storylet' | 'plotPilot' | 'settings'
 
 export interface ParsedCompoundRoute {
   /** The navigator type */
@@ -61,7 +61,7 @@ export interface ParsedCompoundRoute {
  * Known prefixes that indicate a compound route
  */
 const COMPOUND_ROUTE_PREFIXES = [
-  'allSessions', 'flagged', 'archived', 'state', 'label', 'view', 'sources', 'skills', 'automations', 'tasks', 'skill-crew', 'settings'
+  'allSessions', 'flagged', 'archived', 'state', 'label', 'view', 'sources', 'skills', 'automations', 'tasks', 'skill-crew', 'storylet', 'plotpilot', 'settings'
 ]
 
 /**
@@ -97,6 +97,16 @@ export function parseCompoundRoute(route: string): ParsedCompoundRoute | null {
   // Skill Crew navigator
   if (first === 'skill-crew') {
     return { navigator: 'skillCrew', details: null }
+  }
+
+  // Storylet navigator
+  if (first === 'storylet') {
+    return { navigator: 'storylet', details: null }
+  }
+
+  // PlotPilot navigator
+  if (first === 'plotpilot') {
+    return { navigator: 'plotPilot', details: null }
   }
 
   // Settings navigator
@@ -334,6 +344,14 @@ export function buildCompoundRoute(parsed: ParsedCompoundRoute): string {
     return 'skill-crew'
   }
 
+  if (parsed.navigator === 'storylet') {
+    return 'storylet'
+  }
+
+  if (parsed.navigator === 'plotPilot') {
+    return 'plotpilot'
+  }
+
   // Sessions navigator
   let base: string
   const filter = parsed.sessionFilter
@@ -475,6 +493,16 @@ function convertCompoundToViewRoute(compound: ParsedCompoundRoute): ParsedRoute 
   // Skill Crew
   if (compound.navigator === 'skillCrew') {
     return { type: 'view', name: 'skill-crew', params: {} }
+  }
+
+  // Storylet
+  if (compound.navigator === 'storylet') {
+    return { type: 'view', name: 'storylet', params: {} }
+  }
+
+  // PlotPilot
+  if (compound.navigator === 'plotPilot') {
+    return { type: 'view', name: 'plotpilot', params: {} }
   }
 
   // Sessions
@@ -641,6 +669,16 @@ function convertCompoundToNavigationState(compound: ParsedCompoundRoute): Naviga
     return { navigator: 'skillCrew', details: null }
   }
 
+  // Storylet
+  if (compound.navigator === 'storylet') {
+    return { navigator: 'storylet', details: null }
+  }
+
+  // PlotPilot
+  if (compound.navigator === 'plotPilot') {
+    return { navigator: 'plotPilot', details: null }
+  }
+
   // Sessions
   const filter = compound.sessionFilter || { kind: 'allSessions' as const }
   if (compound.details) {
@@ -722,6 +760,10 @@ function convertParsedRouteToNavigationState(parsed: ParsedRoute): NavigationSta
       return { navigator: 'tasks', details: null }
     case 'skill-crew':
       return { navigator: 'skillCrew', details: null }
+    case 'storylet':
+      return { navigator: 'storylet', details: null }
+    case 'plotpilot':
+      return { navigator: 'plotPilot', details: null }
     case 'epic-info':
       if (parsed.id) {
         return {
@@ -872,6 +914,14 @@ function navigationStateToCompoundRoute(state: NavigationState): ParsedCompoundR
 
   if (state.navigator === 'skillCrew') {
     return { navigator: 'skillCrew', details: null }
+  }
+
+  if (state.navigator === 'storylet') {
+    return { navigator: 'storylet', details: null }
+  }
+
+  if (state.navigator === 'plotPilot') {
+    return { navigator: 'plotPilot', details: null }
   }
 
   // Sessions

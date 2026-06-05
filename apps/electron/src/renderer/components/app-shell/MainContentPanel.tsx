@@ -33,6 +33,8 @@ import {
   isAutomationsNavigation,
   isTasksNavigation,
   isSkillCrewNavigation,
+  isStoryletNavigation,
+  isPlotPilotNavigation,
 } from '@/contexts/NavigationContext'
 import { useSessionSelection, useIsMultiSelectActive, useSelectedIds, useSelectionCount } from '@/hooks/useSession'
 import { sourceSelection, skillSelection, automationSelection } from '@/hooks/useEntitySelection'
@@ -47,6 +49,7 @@ import { automationsAtom } from '@/atoms/automations'
 import { SendResourceToWorkspaceDialog, type SendResourceType } from './SendResourceToWorkspaceDialog'
 import { TasksPage } from '@/pages/TasksPage'
 import SkillCrewPage from '@/pages/SkillCrewPage'
+import { WorkspaceToolPage } from '@/components/workspace-tools/WorkspaceToolPage'
 
 export interface MainContentPanelProps {
   /** Whether both sidebar and navigator are hidden (focus mode / CMD+.) */
@@ -364,6 +367,22 @@ export function MainContentPanel({
     return wrapWithStoplight(
       <Panel variant="grow" className={className ? `${className} min-h-0` : 'min-h-0'}>
         <SkillCrewPage />
+      </Panel>
+    )
+  }
+
+  if (isStoryletNavigation(navState)) {
+    return wrapWithStoplight(
+      <Panel variant="grow" className={className ? `${className} min-h-0` : 'min-h-0'}>
+        <WorkspaceToolPage toolId="storylet" />
+      </Panel>
+    )
+  }
+
+  if (isPlotPilotNavigation(navState)) {
+    return wrapWithStoplight(
+      <Panel variant="grow" className={className ? `${className} min-h-0` : 'min-h-0'}>
+        <WorkspaceToolPage toolId="plotPilot" />
       </Panel>
     )
   }

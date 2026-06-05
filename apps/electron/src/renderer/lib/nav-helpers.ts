@@ -19,6 +19,7 @@ import type { NavigationState } from '../../shared/types'
  * - sessions: a session is selected
  * - settings: a subpage is selected (bare `settings` route → false)
  * - sources / skills / automations: a detail item is selected
+ * - workspace projections: always navigator-level embeds
  */
 export function isDetailNavState(navState: NavigationState | null): boolean {
   if (!navState) return false
@@ -33,6 +34,8 @@ export function isDetailNavState(navState: NavigationState | null): boolean {
     case 'tasks':
       return navState.details !== null
     case 'skillCrew':
+    case 'storylet':
+    case 'plotPilot':
       return false
   }
 }

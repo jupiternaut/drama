@@ -70,6 +70,8 @@ import {
   isAutomationsNavigation,
   isTasksNavigation,
   isSkillCrewNavigation,
+  isStoryletNavigation,
+  isPlotPilotNavigation,
   DEFAULT_NAVIGATION_STATE,
 } from '../../shared/types'
 import { sessionMetaMapAtom, updateSessionMetaAtom, type SessionMeta } from '@/atoms/sessions'
@@ -92,7 +94,7 @@ export type { Route }
 
 // Re-export navigation state types for consumers
 export type { NavigationState, SessionFilter }
-export { isSessionsNavigation, isSourcesNavigation, isSettingsNavigation, isSkillsNavigation, isAutomationsNavigation, isTasksNavigation, isSkillCrewNavigation }
+export { isSessionsNavigation, isSourcesNavigation, isSettingsNavigation, isSkillsNavigation, isAutomationsNavigation, isTasksNavigation, isSkillCrewNavigation, isStoryletNavigation, isPlotPilotNavigation }
 
 // =============================================================================
 // Context

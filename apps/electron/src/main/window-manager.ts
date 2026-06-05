@@ -63,6 +63,10 @@ export class WindowManager {
   private keyboardCloseIntentTimeouts: Map<number, NodeJS.Timeout> = new Map()  // Auto-clear stale keyboard-close intents
   private isAppQuitting = false  // Skip layered close interception during app quit
 
+  private shouldHideToTrayOnClose(): boolean {
+    return !this.isAppQuitting && process.platform !== 'darwin'
+  }
+
   /**
    * Set the event sink and client resolver for pushing events via the RPC server
    * instead of webContents.send. Called after server creation.
@@ -479,7 +483,14 @@ export class WindowManager {
 
         this.pendingCloseTimeouts.set(wcId, setTimeout(() => {
           this.pendingCloseTimeouts.delete(wcId)
-          if (!window.isDestroyed()) window.destroy()
+          if (!window.isDestroyed()) {
+            if (this.shouldHideToTrayOnClose()) {
+              window.hide()
+              windowLog.info(`Window hidden to tray after close timeout for workspace ${workspaceId}`)
+            } else {
+              window.destroy()
+            }
+          }
         }, 3000))
       }
       // If renderer not ready, allow default close behavior
@@ -594,8 +605,12 @@ export class WindowManager {
 
     const managed = this.windows.get(webContentsId)
     if (managed && !managed.window.isDestroyed()) {
-      // Remove close listener temporarily to avoid infinite loop,
-      // then destroy the window directly
+      if (this.shouldHideToTrayOnClose()) {
+        managed.window.hide()
+        windowLog.info(`Window hidden to tray for workspace ${managed.workspaceId}`)
+        return
+      }
+
       managed.window.destroy()
     }
   }
@@ -673,6 +688,9 @@ export class WindowManager {
     if (existing) {
       if (existing.isMinimized()) {
         existing.restore()
+      }
+      if (!existing.isVisible()) {
+        existing.show()
       }
       existing.focus()
       return existing

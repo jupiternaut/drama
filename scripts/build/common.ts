@@ -736,10 +736,10 @@ export async function loadEnvFile(config: BuildConfig): Promise<void> {
 export function getArtifactName(platform: Platform, arch: Arch): string {
   switch (platform) {
     case 'darwin':
-      return `craftdemo-${arch}.dmg`;
+      return `drama-${arch}.dmg`;
     case 'win32':
-      return `craftdemo-${arch}.exe`;
+      return `drama-${arch}.exe`;
     case 'linux':
-      return `craftdemo-${arch}.AppImage`;
+      return `drama-${arch}.AppImage`;
   }
 }

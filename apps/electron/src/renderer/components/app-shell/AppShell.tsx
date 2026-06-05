@@ -33,6 +33,7 @@ import {
   Info,
   MailOpen,
   Crown,
+  FileText,
 } from "lucide-react"
 // SessionStatusIcons no longer used - icons come from dynamic sessionStatuses
 import { SourceAvatar } from "@/components/ui/source-avatar"
@@ -116,6 +117,8 @@ import {
   isAutomationsNavigation,
   isTasksNavigation,
   isSkillCrewNavigation,
+  isStoryletNavigation,
+  isPlotPilotNavigation,
   type NavigationState,
 } from "@/contexts/NavigationContext"
 import type { SettingsSubpage } from "../../../shared/types"
@@ -124,6 +127,7 @@ import { SkillsListPanel } from "./SkillsListPanel"
 import { AutomationsListPanel } from "../automations/AutomationsListPanel"
 import { TasksNavigatorPanel } from "@/components/tasks/TasksNavigatorPanel"
 import { SkillCrewNavigatorPanel } from "@/components/skill-crew/SkillCrewNavigatorPanel"
+import { WorkspaceToolNavigatorPanel } from "@/components/workspace-tools/WorkspaceToolNavigatorPanel"
 import { activeFlowProjectAtom } from "@/atoms/tasks-state"
 import { APP_EVENTS, AGENT_EVENTS, type AutomationFilterKind, AUTOMATION_TYPE_TO_FILTER_KIND } from "../automations/types"
 import { useAutomations } from "@/hooks/useAutomations"
@@ -1716,6 +1720,14 @@ function AppShellContent({
     navigate(routes.view.skillCrew())
   }, [])
 
+  const handleStoryletClick = useCallback(() => {
+    navigate(routes.view.storylet())
+  }, [])
+
+  const handlePlotPilotClick = useCallback(() => {
+    navigate(routes.view.plotPilot())
+  }, [])
+
   const handleTaskEpicSelect = useCallback((epicId: string) => {
     navigate(routes.view.epicDetail(epicId))
   }, [])
@@ -1982,13 +1994,15 @@ function AppShellContent({
     result.push({ id: 'nav:sources', type: 'nav', action: handleSourcesClick })
     result.push({ id: 'nav:skills', type: 'nav', action: handleSkillsClick })
     result.push({ id: 'nav:skillCrew', type: 'nav', action: handleSkillCrewClick })
+    result.push({ id: 'nav:storylet', type: 'nav', action: handleStoryletClick })
+    result.push({ id: 'nav:plotPilot', type: 'nav', action: handlePlotPilotClick })
     result.push({ id: 'nav:tasks', type: 'nav', action: handleTasksClick })
     result.push({ id: 'nav:automations', type: 'nav', action: handleAutomationsClick })
     result.push({ id: 'nav:settings', type: 'nav', action: () => handleSettingsClick() })
     result.push({ id: 'nav:whats-new', type: 'nav', action: handleWhatsNewClick })
 
     return result
-  }, [handleAllSessionsClick, handleFlaggedClick, handleArchivedClick, handleSessionStatusClick, effectiveSessionStatuses, handleLabelClick, labelConfigs, labelTree, viewConfigs, handleViewClick, handleSourcesClick, handleSkillsClick, handleSkillCrewClick, handleTasksClick, handleAutomationsClick, handleSettingsClick, handleWhatsNewClick])
+  }, [handleAllSessionsClick, handleFlaggedClick, handleArchivedClick, handleSessionStatusClick, effectiveSessionStatuses, handleLabelClick, labelConfigs, labelTree, viewConfigs, handleViewClick, handleSourcesClick, handleSkillsClick, handleSkillCrewClick, handleStoryletClick, handlePlotPilotClick, handleTasksClick, handleAutomationsClick, handleSettingsClick, handleWhatsNewClick])
 
   // Toggle folder expanded state
   const handleToggleFolder = React.useCallback((path: string) => {
@@ -2122,6 +2136,10 @@ function AppShellContent({
     if (isTasksNavigation(navState)) return t("sidebar.tasks", "Tasks")
 
     if (isSkillCrewNavigation(navState)) return t("sidebar.skillCrew", "Skill Crew")
+
+    if (isStoryletNavigation(navState)) return t("sidebar.storylet", "Drama Graph")
+
+    if (isPlotPilotNavigation(navState)) return t("sidebar.plotPilot", "Drama PLM")
 
     // Settings navigator
     if (isSettingsNavigation(navState)) return t("sidebar.settings")
@@ -2458,6 +2476,20 @@ function AppShellContent({
                       icon: Crown,
                       variant: isSkillCrewNavigation(navState) ? "default" : "ghost",
                       onClick: handleSkillCrewClick,
+                    },
+                    {
+                      id: "nav:storylet",
+                      title: t("sidebar.storylet", "Drama Graph"),
+                      icon: Layers,
+                      variant: isStoryletNavigation(navState) ? "default" : "ghost",
+                      onClick: handleStoryletClick,
+                    },
+                    {
+                      id: "nav:plotPilot",
+                      title: t("sidebar.plotPilot", "Drama PLM"),
+                      icon: FileText,
+                      variant: isPlotPilotNavigation(navState) ? "default" : "ghost",
+                      onClick: handlePlotPilotClick,
                     },
                     {
                       id: "nav:tasks",
@@ -3240,6 +3272,12 @@ function AppShellContent({
             )}
             {isSkillCrewNavigation(navState) && (
               <SkillCrewNavigatorPanel />
+            )}
+            {isStoryletNavigation(navState) && (
+              <WorkspaceToolNavigatorPanel activeToolId="storylet" />
+            )}
+            {isPlotPilotNavigation(navState) && (
+              <WorkspaceToolNavigatorPanel activeToolId="plotPilot" />
             )}
             {isSettingsNavigation(navState) && (
               /* Settings Navigator */

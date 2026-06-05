@@ -112,6 +112,7 @@ import { getCredentialManager } from '@craft-agent/shared/credentials'
 import { initModelRefreshService, getModelRefreshService, setFetcherPlatform } from '@craft-agent/server-core/model-fetchers'
 import { setSearchPlatform, setImageProcessor } from '@craft-agent/server-core/services'
 import { createApplicationMenu } from './menu'
+import { disposeAppTray, initAppTray } from './app-tray'
 import { WindowManager } from './window-manager'
 import { loadWindowState, saveWindowState } from './window-state'
 import { getWorkspaces, getWorkspaceByNameOrId, loadStoredConfig, addWorkspace, saveConfig } from '@craft-agent/shared/config'
@@ -459,7 +460,7 @@ async function runCodexSkillExec(args: {
     && existsSync(args.workingDirectory)
     ? args.workingDirectory
     : homedir()
-  const tempDir = await mkdtemp(join(tmpdir(), 'debt-codex-skill-'))
+  const tempDir = await mkdtemp(join(tmpdir(), 'drama-codex-skill-'))
   const outputPath = join(tempDir, 'last-message.txt')
   const codexPath = resolveCodexCliPath()
   const runId = randomUUID().slice(0, 8)
@@ -657,7 +658,7 @@ async function recordSkillFeedbackSample(args: SkillFeedbackRecordInput): Promis
   const feedbackPath = join(feedbackDir, 'feedback_samples.jsonl')
   const record = {
     schemaVersion: 1,
-    source: 'debt.skill-crew.ui',
+    source: 'drama.skill-crew.ui',
     recordedAt: args.recordedAt || new Date().toISOString(),
     sampleKind: skillFeedbackKind(args.verdict),
     verdict: args.verdict,
@@ -4380,8 +4381,11 @@ async function importSkillToCrewFolder(args: SkillCrewImportSkillArgs): Promise<
 }
 
 // Set app name early (before app.whenReady) to ensure correct macOS menu bar title
-// Supports multi-instance dev: CRAFT_APP_NAME env var (e.g., "debt [1]")
-app.setName(process.env.CRAFT_APP_NAME || 'debt')
+// Supports multi-instance dev: CRAFT_APP_NAME env var (e.g., "Drama [1]")
+app.setName(process.env.CRAFT_APP_NAME || 'Drama')
+if (process.platform === 'win32') {
+  app.setAppUserModelId(process.env.CRAFT_APP_ID || 'com.jupiternaut.drama')
+}
 
 // Register as default protocol client for craftagents:// URLs
 // This must be done before app.whenReady() on some platforms
@@ -4458,7 +4462,7 @@ app.on('open-url', (event, url) => {
 // Handle deeplink on Windows/Linux (single instance check)
 const gotTheLock = app.requestSingleInstanceLock()
 if (!gotTheLock) {
-  app.quit()
+  app.exit(0)
 } else {
   app.on('second-instance', (_event, commandLine, _workingDirectory) => {
     // Someone tried to run a second instance, we should focus our window.
@@ -4475,7 +4479,17 @@ if (!gotTheLock) {
       if (windows.length > 0) {
         const win = windows[0].window
         if (win.isMinimized()) win.restore()
+        if (!win.isVisible()) win.show()
         win.focus()
+      } else {
+        const workspaces = getWorkspaces()
+        if (workspaces.length > 0) {
+          const savedState = loadWindowState()
+          const workspaceId = savedState?.lastFocusedWorkspaceId && workspaces.some(ws => ws.id === savedState.lastFocusedWorkspaceId)
+            ? savedState.lastFocusedWorkspaceId
+            : workspaces[0].id
+          windowManager.createWindow({ workspaceId })
+        }
       }
     }
   })
@@ -4613,6 +4627,7 @@ app.whenReady().then(async () => {
 
     // Create the application menu (needs windowManager for New Window action)
     createApplicationMenu(windowManager)
+    initAppTray(windowManager)
 
     // When CRAFT_SERVER_URL is set, this Electron instance is a thin client —
     // it only creates windows whose preload connects to the remote server.
@@ -5480,8 +5495,14 @@ app.on('window-all-closed', () => {
   }
 })
 
+app.on('will-quit', () => {
+  disposeAppTray()
+  releaseServerLock()
+})
+
 // Track if we're in the process of quitting (to avoid re-entry)
 let isQuitting = false
+let forceQuitTimer: NodeJS.Timeout | null = null
 
 /**
  * Capture the current multi-window state and persist it to disk.
@@ -5510,6 +5531,15 @@ app.on('before-quit', async (event) => {
   // Avoid re-entry when we call app.exit()
   if (isQuitting) return
   isQuitting = true
+
+  if (!forceQuitTimer) {
+    forceQuitTimer = setTimeout(() => {
+      mainLog.warn('[quit] Cleanup timed out; releasing server lock and forcing app exit')
+      releaseServerLock()
+      app.exit(0)
+    }, 8_000)
+    forceQuitTimer.unref?.()
+  }
 
   // Ensure Cmd+Q/app quit bypasses layered window close interception (Cmd+W behavior).
   windowManager?.setAppQuitting(true)
@@ -5585,8 +5615,16 @@ app.on('before-quit', async (event) => {
     }
 
     // Now actually quit
+    if (forceQuitTimer) {
+      clearTimeout(forceQuitTimer)
+      forceQuitTimer = null
+    }
     app.exit(0)
   }
+})
+
+process.on('exit', () => {
+  releaseServerLock()
 })
 
 // Handle uncaught exceptions — forward to Sentry explicitly since registering

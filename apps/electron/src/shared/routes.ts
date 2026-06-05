@@ -160,6 +160,12 @@ export const routes = {
     /** Skill Crew workspace: channel UI for @skill orchestration and chairman-led debate. */
     skillCrew: () => 'skill-crew' as const,
 
+    /** Storylet visual state-machine projection. */
+    storylet: () => 'storylet' as const,
+
+    /** PlotPilot / PLM long-form narrative projection. */
+    plotPilot: () => 'plotpilot' as const,
+
     /** Automations view (automations navigator) - supports type filtering */
     automations: (params?: { automationId?: string; type?: 'scheduled' | 'event' | 'agentic' }) => {
       const { automationId, type } = params ?? {}

@@ -1183,6 +1183,24 @@ export interface SkillCrewNavigationState {
 }
 
 /**
+ * Storylet navigation state
+ */
+export interface StoryletNavigationState {
+  navigator: 'storylet'
+  details: null
+  rightSidebar?: RightSidebarPanel
+}
+
+/**
+ * PlotPilot navigation state
+ */
+export interface PlotPilotNavigationState {
+  navigator: 'plotPilot'
+  details: null
+  rightSidebar?: RightSidebarPanel
+}
+
+/**
  * Unified navigation state
  */
 export type NavigationState =
@@ -1193,6 +1211,8 @@ export type NavigationState =
   | AutomationsNavigationState
   | TasksNavigationState
   | SkillCrewNavigationState
+  | StoryletNavigationState
+  | PlotPilotNavigationState
 
 export const isSessionsNavigation = (
   state: NavigationState
@@ -1221,6 +1241,14 @@ export const isTasksNavigation = (
 export const isSkillCrewNavigation = (
   state: NavigationState
 ): state is SkillCrewNavigationState => state.navigator === 'skillCrew'
+
+export const isStoryletNavigation = (
+  state: NavigationState
+): state is StoryletNavigationState => state.navigator === 'storylet'
+
+export const isPlotPilotNavigation = (
+  state: NavigationState
+): state is PlotPilotNavigationState => state.navigator === 'plotPilot'
 
 export const DEFAULT_NAVIGATION_STATE: NavigationState = {
   navigator: 'sessions',
@@ -1261,6 +1289,12 @@ export const getNavigationStateKey = (state: NavigationState): string => {
   }
   if (state.navigator === 'skillCrew') {
     return 'skill-crew'
+  }
+  if (state.navigator === 'storylet') {
+    return 'storylet'
+  }
+  if (state.navigator === 'plotPilot') {
+    return 'plotpilot'
   }
   if (state.navigator === 'settings') {
     if (state.subpage === null) return 'settings'
@@ -1326,6 +1360,10 @@ export const parseNavigationStateKey = (key: string): NavigationState | null => 
 
   // Handle skill crew
   if (key === 'skill-crew') return { navigator: 'skillCrew', details: null }
+
+  // Handle workspace projections
+  if (key === 'storylet') return { navigator: 'storylet', details: null }
+  if (key === 'plotpilot') return { navigator: 'plotPilot', details: null }
 
   // Handle settings
   if (key === 'settings') return { navigator: 'settings', subpage: null }
