@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "id": "homelander-butcher-3run",
+  "roomId": "debate",
+  "description": "Three-run theater acceptance fixture: Homelander challenges, Butcher replies, Vought allies stand, and local life-flow actors join.",
+  "artifactDir": "../fixtures/homelander-butcher-3run/skill-moments",
+  "runs": 3,
+  "expect": {
+    "noBannedPhrases": ["我回来了", "我复活了", "已点赞", "Big moment"],
+    "requiredBeats": ["public_challenge", "enemy_reply", "ally_stance", "bystander_signal", "media_action"],
+    "requiredHooks": ["reply_priority", "private_revenge"],
+    "minActiveLocalActors": 1,
+    "mediaMayFallback": true,
+    "requiredRelationshipEvents": [
+      { "kind": "reply", "actorSlug": "butcher", "targetSlug": "homelander" },
+      { "kind": "private_post", "actorSlug": "butcher" }
+    ],
+    "requiredActorStateCards": [
+      { "slug": "homelander", "state": "grudge" },
+      { "slug": "butcher", "state": "evidence" },
+      { "slug": "gazi", "state": "watching" }
+    ],
+    "requiredShowQualityIssues": [
+      { "key": "banned_phrase", "status": "clear" },
+      { "key": "no_relationship_change", "status": "clear" }
+    ],
+    "requiredBrowserQueueSnapshot": {
+      "state": "fallback",
+      "minFallback": 1
+    },
+    "requiredRunSummaries": [
+      {
+        "runId": "run-1",
+        "roleGoal": "祖国人把危机改造成公开忠诚测试，逼屠夫站到镜头前。",
+        "action": "祖国人发城市大屏直播主贴，屠夫反击，碍事丽控评，刘海柱追问现场。",
+        "relationshipChange": "屠夫、碍事丽、刘海柱都转成对祖国人的 reply 关系。",
+        "nextRoundHook": "祖国人下一轮优先接屠夫的公开反击；屠夫保留 private_revenge 证据暗线。",
+        "requiredBeats": ["public_challenge", "enemy_reply", "ally_stance", "bystander_signal", "media_action"],
+        "requiredHooks": ["reply_priority", "private_revenge"],
+        "requiredRelationshipEvents": [
+          { "kind": "reply", "actorSlug": "butcher", "targetSlug": "homelander" },
+          { "kind": "reply", "actorSlug": "ashley", "targetSlug": "homelander" },
+          { "kind": "reply", "actorSlug": "liu-haizhu", "targetSlug": "homelander" }
+        ],
+        "requiredActorStateCards": [
+          { "slug": "homelander", "state": "grudge" },
+          { "slug": "butcher", "state": "evidence" },
+          { "slug": "liu-haizhu", "state": "watching" }
+        ],
+        "requiredBrowserQueueSnapshot": {
+          "state": "captured",
+          "minCaptured": 1
+        }
+      },
+      {
+        "runId": "run-2",
+        "roleGoal": "屠夫把公开挑衅转成证据暗线，准备下一轮爆料。",
+        "action": "屠夫发布仅自己可见的证据帖，目标从骂战变成找签字人。",
+        "relationshipChange": "屠夫产生 private_post 关系事件，冲突从公开 reply 进入私密行动。",
+        "nextRoundHook": "屠夫继续持有 private_revenge hook，下一轮必须推进证据线。",
+        "requiredBeats": ["public_challenge", "enemy_reply", "ally_stance", "bystander_signal"],
+        "requiredHooks": ["private_revenge"],
+        "requiredRelationshipEvents": [
+          { "kind": "private_post", "actorSlug": "butcher" }
+        ],
+        "requiredActorStateCards": [
+          { "slug": "butcher", "state": "evidence" }
+        ],
+        "requiredBrowserQueueSnapshot": {
+          "state": "idle"
+        }
+      },
+      {
+        "runId": "run-3",
+        "roleGoal": "祖国人接住屠夫的证据线，重新把冲突拉回公开镜头。",
+        "action": "祖国人打开定位和镜头，浏览器图片走 fallback；嘎子评论把场面推向直播。",
+        "relationshipChange": "嘎子对祖国人形成 reply 关系，旁观者把冲突继续拱到下一轮。",
+        "nextRoundHook": "屠夫获得 reply_priority hook，下一轮必须回应祖国人的定位挑衅。",
+        "requiredBeats": ["public_challenge", "enemy_reply", "ally_stance", "bystander_signal", "media_action"],
+        "requiredHooks": ["reply_priority"],
+        "requiredRelationshipEvents": [
+          { "kind": "reply", "actorSlug": "gazi", "targetSlug": "homelander" }
+        ],
+        "requiredActorStateCards": [
+          { "slug": "butcher", "state": "grudge" },
+          { "slug": "gazi", "state": "watching" }
+        ],
+        "requiredBrowserQueueSnapshot": {
+          "state": "fallback",
+          "minFallback": 1
+        }
+      }
+    ]
+  }
+}

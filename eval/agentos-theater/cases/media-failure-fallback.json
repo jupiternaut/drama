@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "id": "media-failure-fallback",
+  "roomId": "debate",
+  "description": "Media failure must not block the feed; fallback image and evidence must be recorded.",
+  "artifactDir": "../fixtures/media-failure-fallback/skill-moments",
+  "runs": 1,
+  "expect": {
+    "noBannedPhrases": ["我回来了", "我复活了", "已点赞", "Big moment"],
+    "requiredBeats": ["public_challenge", "enemy_reply", "media_action"],
+    "requiredHooks": ["media_retry"],
+    "mediaMayFallback": true,
+    "requireMediaFallback": true,
+    "requiredRelationshipEvents": [
+      { "kind": "reply", "actorSlug": "butcher", "targetSlug": "homelander" }
+    ],
+    "requiredActorStateCards": [
+      { "slug": "homelander", "state": "watching" }
+    ],
+    "requiredShowQualityIssues": [
+      { "key": "banned_phrase", "status": "clear" },
+      { "key": "no_relationship_change", "status": "clear" }
+    ],
+    "requiredBrowserQueueSnapshot": {
+      "state": "fallback",
+      "minFailed": 1,
+      "minFallback": 1
+    },
+    "requiredRunSummaries": [
+      {
+        "runId": "media-run",
+        "roleGoal": "祖国人仍要完成公开挑衅，但图片生成失败不能阻断剧情。",
+        "action": "主贴和评论继续推进，浏览器图片失败后复用 fallback 图。",
+        "relationshipChange": "屠夫回应祖国人的定位挑衅，冲突关系仍然成立。",
+        "nextRoundHook": "media_retry hook 记录失败原因，下一轮优先重试或明确 fallback。",
+        "requiredBeats": ["public_challenge", "enemy_reply", "media_action"],
+        "requiredHooks": ["media_retry"],
+        "requiredRelationshipEvents": [
+          { "kind": "reply", "actorSlug": "butcher", "targetSlug": "homelander" }
+        ],
+        "requiredActorStateCards": [
+          { "slug": "homelander", "state": "watching" }
+        ],
+        "requiredBrowserQueueSnapshot": {
+          "state": "fallback",
+          "minFailed": 1,
+          "minFallback": 1
+        }
+      }
+    ]
+  }
+}
