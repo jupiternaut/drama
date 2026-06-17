@@ -1,0 +1,29 @@
+{
+  "name": "@drama/core",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "description": "Canonical Drama schema, graph events, and persistence contracts",
+  "type": "module",
+  "main": "./dist/esm/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "default": "./dist/esm/index.js"
+    },
+    "./graph": {
+      "types": "./dist/types/graph/index.d.ts",
+      "import": "./dist/esm/graph/index.js",
+      "default": "./dist/esm/graph/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": ["dist", "README.md", "package.json"],
+  "scripts": {
+    "build": "bun run ../../scripts/build-drama-package.ts .",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  }
+}

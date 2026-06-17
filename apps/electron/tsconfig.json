@@ -24,7 +24,21 @@
       "@/*": ["src/renderer/*"],
       "@config/*": ["../../packages/shared/src/config/*"],
       "@craft-agent/shared": ["../../packages/shared/src/index.ts"],
-      "@craft-agent/shared/*": ["../../packages/shared/src/*"]
+      "@craft-agent/shared/*": ["../../packages/shared/src/*"],
+      "@drama/core": ["../../packages/drama-core/src/index.ts"],
+      "@drama/core/*": ["../../packages/drama-core/src/*"],
+      "@drama/crew": ["../../packages/drama-crew/src/index.ts"],
+      "@drama/crew/*": ["../../packages/drama-crew/src/*"],
+      "@drama/graph": ["../../packages/drama-graph/src/index.ts"],
+      "@drama/graph/*": ["../../packages/drama-graph/src/*"],
+      "@drama/graph-ui": ["../../packages/drama-graph-ui/src/index.ts"],
+      "@drama/graph-ui/*": ["../../packages/drama-graph-ui/src/*"],
+      "@drama/host": ["../../packages/drama-host/src/index.ts"],
+      "@drama/host/*": ["../../packages/drama-host/src/*"],
+      "@drama/plm": ["../../packages/drama-plm/src/index.ts"],
+      "@drama/plm/*": ["../../packages/drama-plm/src/*"],
+      "@drama/plm-ui": ["../../packages/drama-plm-ui/src/index.ts"],
+      "@drama/plm-ui/*": ["../../packages/drama-plm-ui/src/*"]
     }
   },
   "include": ["src/**/*", "../../packages/shared/src/**/*.d.ts"],

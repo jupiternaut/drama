@@ -1,0 +1,102 @@
+{
+  "name": "@drama/crew",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "description": "Drama Skill Crew contracts, task bindings, and graph event helpers",
+  "type": "module",
+  "main": "./dist/esm/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "default": "./dist/esm/index.js"
+    },
+    "./rooms": {
+      "types": "./dist/types/rooms.d.ts",
+      "import": "./dist/esm/rooms.js",
+      "default": "./dist/esm/rooms.js"
+    },
+    "./graph-events": {
+      "types": "./dist/types/graph-events.d.ts",
+      "import": "./dist/esm/graph-events.js",
+      "default": "./dist/esm/graph-events.js"
+    },
+    "./room-policies": {
+      "types": "./dist/types/room-policies.d.ts",
+      "import": "./dist/esm/room-policies.js",
+      "default": "./dist/esm/room-policies.js"
+    },
+    "./skill-actor-runtime": {
+      "types": "./dist/types/skill-actor-runtime.d.ts",
+      "import": "./dist/esm/skill-actor-runtime.js",
+      "default": "./dist/esm/skill-actor-runtime.js"
+    },
+    "./skill-actor-memory": {
+      "types": "./dist/types/skill-actor-memory.d.ts",
+      "import": "./dist/esm/skill-actor-memory.js",
+      "default": "./dist/esm/skill-actor-memory.js"
+    },
+    "./writer-room-mock": {
+      "types": "./dist/types/writer-room-mock.d.ts",
+      "import": "./dist/esm/writer-room-mock.js",
+      "default": "./dist/esm/writer-room-mock.js"
+    },
+    "./demo-theater-control": {
+      "types": "./dist/types/demo-theater-control.d.ts",
+      "import": "./dist/esm/demo-theater-control.js",
+      "default": "./dist/esm/demo-theater-control.js"
+    },
+    "./agentos-browser-use": {
+      "types": "./dist/types/agentos-browser-use.d.ts",
+      "import": "./dist/esm/agentos-browser-use.js",
+      "default": "./dist/esm/agentos-browser-use.js"
+    },
+    "./agentos-browser-worker": {
+      "types": "./dist/types/agentos-browser-worker.d.ts",
+      "import": "./dist/esm/agentos-browser-worker.js",
+      "default": "./dist/esm/agentos-browser-worker.js"
+    },
+    "./agentos-browser-use-runner": {
+      "types": "./dist/types/agentos-browser-use-runner.d.ts",
+      "import": "./dist/esm/agentos-browser-use-runner.js",
+      "default": "./dist/esm/agentos-browser-use-runner.js"
+    },
+    "./agentos-theater-eval": {
+      "types": "./dist/types/agentos-theater-eval.d.ts",
+      "import": "./dist/esm/agentos-theater-eval.js",
+      "default": "./dist/esm/agentos-theater-eval.js"
+    },
+    "./show-score-calibration": {
+      "types": "./dist/types/show-score-calibration.d.ts",
+      "import": "./dist/esm/show-score-calibration.js",
+      "default": "./dist/esm/show-score-calibration.js"
+    },
+    "./skill-evolution-draft": {
+      "types": "./dist/types/skill-evolution-draft.d.ts",
+      "import": "./dist/esm/skill-evolution-draft.js",
+      "default": "./dist/esm/skill-evolution-draft.js"
+    },
+    "./skill-moments-real-execution": {
+      "types": "./dist/types/skill-moments-real-execution.d.ts",
+      "import": "./dist/esm/skill-moments-real-execution.js",
+      "default": "./dist/esm/skill-moments-real-execution.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": ["dist", "README.md", "package.json"],
+  "scripts": {
+    "build": "bun run ../../scripts/build-drama-package.ts .",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@craft-agent/shared": "workspace:*",
+    "@drama/core": "workspace:*",
+    "ws": "^8.19.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.18.1"
+  }
+}

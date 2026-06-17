@@ -1,0 +1,49 @@
+{
+  "name": "@drama/plm",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "description": "Drama PLM runtime and Codex OAuth contracts",
+  "type": "module",
+  "main": "./dist/esm/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "default": "./dist/esm/index.js"
+    },
+    "./runtime": {
+      "types": "./dist/types/runtime.d.ts",
+      "import": "./dist/esm/runtime.js",
+      "default": "./dist/esm/runtime.js"
+    },
+    "./runtime-manager": {
+      "types": "./dist/types/runtime-manager.d.ts",
+      "import": "./dist/esm/runtime-manager.js",
+      "default": "./dist/esm/runtime-manager.js"
+    },
+    "./codex": {
+      "types": "./dist/types/codex.d.ts",
+      "import": "./dist/esm/codex.js",
+      "default": "./dist/esm/codex.js"
+    },
+    "./client": {
+      "types": "./dist/types/client.d.ts",
+      "import": "./dist/esm/client.js",
+      "default": "./dist/esm/client.js"
+    },
+    "./plotpilot-types": {
+      "types": "./dist/types/plotpilot-types.d.ts",
+      "import": "./dist/esm/plotpilot-types.js",
+      "default": "./dist/esm/plotpilot-types.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": ["dist", "resources", "README.md", "package.json"],
+  "scripts": {
+    "build": "bun run ../../scripts/build-drama-package.ts .",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  }
+}

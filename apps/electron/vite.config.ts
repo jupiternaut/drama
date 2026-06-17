@@ -52,6 +52,20 @@ export default defineConfig({
     alias: {
       '@': resolve(__dirname, 'src/renderer'),
       '@config': resolve(__dirname, '../../packages/shared/src/config'),
+      '@drama/core': resolve(__dirname, '../../packages/drama-core/src/index.ts'),
+      '@drama/core/': resolve(__dirname, '../../packages/drama-core/src/'),
+      '@drama/crew': resolve(__dirname, '../../packages/drama-crew/src/index.ts'),
+      '@drama/crew/': resolve(__dirname, '../../packages/drama-crew/src/'),
+      '@drama/graph': resolve(__dirname, '../../packages/drama-graph/src/index.ts'),
+      '@drama/graph/': resolve(__dirname, '../../packages/drama-graph/src/'),
+      '@drama/graph-ui': resolve(__dirname, '../../packages/drama-graph-ui/src/index.ts'),
+      '@drama/graph-ui/': resolve(__dirname, '../../packages/drama-graph-ui/src/'),
+      '@drama/host': resolve(__dirname, '../../packages/drama-host/src/index.ts'),
+      '@drama/host/': resolve(__dirname, '../../packages/drama-host/src/'),
+      '@drama/plm': resolve(__dirname, '../../packages/drama-plm/src/index.ts'),
+      '@drama/plm/': resolve(__dirname, '../../packages/drama-plm/src/'),
+      '@drama/plm-ui': resolve(__dirname, '../../packages/drama-plm-ui/src/index.ts'),
+      '@drama/plm-ui/': resolve(__dirname, '../../packages/drama-plm-ui/src/'),
       // Force all React imports to use the root node_modules React
       // Bun hoists deps to root. This prevents "multiple React copies" error from @craft-agent/ui
       'react': resolve(__dirname, '../../node_modules/react'),

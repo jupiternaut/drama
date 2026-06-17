@@ -1,0 +1,34 @@
+{
+  "name": "@drama/host",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "description": "Host capability contracts for running Drama outside Electron",
+  "type": "module",
+  "main": "./dist/esm/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "default": "./dist/esm/index.js"
+    },
+    "./gecko": {
+      "types": "./dist/types/gecko.d.ts",
+      "import": "./dist/esm/gecko.js",
+      "default": "./dist/esm/gecko.js"
+    },
+    "./runtime-client": {
+      "types": "./dist/types/runtime-client.d.ts",
+      "import": "./dist/esm/runtime-client.js",
+      "default": "./dist/esm/runtime-client.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": ["dist", "README.md", "package.json"],
+  "scripts": {
+    "build": "bun run ../../scripts/build-drama-package.ts .",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  }
+}

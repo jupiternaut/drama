@@ -2,9 +2,9 @@ import { afterEach, describe, expect, it } from 'bun:test'
 import { mkdtemp, readFile, readdir, rm, writeFile } from 'fs/promises'
 import { join } from 'path'
 import { tmpdir } from 'os'
+import type { DramaGraph } from '@drama/core'
 
 import { DramaGraphStore } from '../drama-graph-store'
-import type { DramaGraph } from '../../shared/drama-graph'
 
 const tempRoots: string[] = []
 

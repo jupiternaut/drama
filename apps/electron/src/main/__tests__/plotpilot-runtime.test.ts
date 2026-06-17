@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test'
 import { EventEmitter } from 'node:events'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { delimiter, join } from 'node:path'
 import { PassThrough } from 'node:stream'
 import {
   PlotPilotRuntimeManager,
@@ -124,10 +124,49 @@ describe('PlotPilotRuntimeManager', () => {
     expect(spawnCalls[0].options.env.PLOTPILOT_SKIP_ORPHAN_CLEANUP).toBe('1')
     expect(spawnCalls[0].options.env.PLOTPILOT_SKIP_PROCESS_CLEANUP).toBe('1')
     expect(spawnCalls[0].options.env.PYTHONPATH).toContain('resources')
+    expect(spawnCalls[0].options.env.PYTHONPATH).toContain(join('packages', 'drama-plm', 'resources'))
     expect(spawnCalls[0].options.env.PLOTPILOT_PROD_DATA_DIR).toBe(dataDir)
     expect(spawnCalls[0].options.env.AITEXT_PROD_DATA_DIR).toBe(dataDir)
     expect(spawnCalls[0].options.env.LOG_FILE).toBe(join(dataDir, 'logs', 'plotpilot.log'))
     expect(fetchCalls).toEqual([{ url: 'http://127.0.0.1:8006/health', method: 'GET' }])
+  })
+
+  it('uses an explicit packaged boot shim path for the PlotPilot Python path', async () => {
+    const previousBootShim = process.env.DRAMA_PLOTPILOT_BOOT_SHIM
+    const packagedResourcesDir = join(tempDir, 'zen-drama-package', 'resources')
+    mkdirSync(packagedResourcesDir, { recursive: true })
+    writeFileSync(join(packagedResourcesDir, 'plotpilot_embedded_boot.py'), '')
+    process.env.DRAMA_PLOTPILOT_BOOT_SHIM = join(packagedResourcesDir, 'plotpilot_embedded_boot.py')
+
+    const spawnCalls: PlotPilotSpawnOptions[] = []
+    const deps: PlotPilotRuntimeDeps = {
+      isPortAvailable: () => true,
+      spawnProcess: (_command, _args, options) => {
+        spawnCalls.push(options)
+        return new FakeChildProcess(4150)
+      },
+      fetch: async () => new Response('{"status":"healthy"}', { status: 200 }),
+    }
+
+    try {
+      const manager = new PlotPilotRuntimeManager({
+        projectRoot,
+        dataDir,
+        pythonExe: join(tempDir, 'python.exe'),
+        deps,
+      })
+
+      await manager.start({ preferExisting: false })
+
+      expect(spawnCalls).toHaveLength(1)
+      expect(spawnCalls[0].env.PYTHONPATH?.split(delimiter)[0]).toBe(packagedResourcesDir)
+    } finally {
+      if (previousBootShim === undefined) {
+        delete process.env.DRAMA_PLOTPILOT_BOOT_SHIM
+      } else {
+        process.env.DRAMA_PLOTPILOT_BOOT_SHIM = previousBootShim
+      }
+    }
   })
 
   it('continues draining stdout and stderr while retaining only recent log entries', async () => {

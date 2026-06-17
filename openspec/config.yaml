@@ -1,0 +1,28 @@
+schema: spec-driven
+
+context: |
+  Project: Drama
+  Stack: TypeScript, React, Vite, Bun, Electron legacy shell, Zen Browser host, local Drama runtime.
+  Product direction: Drama is being extracted from Electron and embedded into Zen Browser as a native-feeling workbench surface.
+
+  UI language:
+  - The outer shell should read as Zen Browser chrome.
+  - The embedded workbench should read as Drama/Warp, not Storylet, PlotPilot, or default browser HTML.
+  - Imported products may be referenced as sources or projections, but primary navigation labels remain Drama-owned:
+    Drama Graph, Drama PLM, Skill Crew.
+  - Chinese localization is a required product path, but internal specs may use English for precision.
+
+rules:
+  specs:
+    - Describe observable product behavior and acceptance scenarios.
+    - Keep implementation details in design.md unless the mechanism is part of the user contract.
+    - Include failure and unstyled-rendering scenarios for browser-hosted UI work.
+    - Include Windows path handling scenarios whenever local files or workspaces are visible.
+  design:
+    - Prefer existing Drama package boundaries before adding new packages.
+    - Do not rewrite React Graph, PLM, or Crew surfaces in XUL.
+    - Use Zen chrome only for the host frame, buttons, commands, and panel lifecycle.
+    - Use token bridges instead of hardcoded colors.
+  tasks:
+    - Include screenshot verification for Zen-hosted UI.
+    - Include regression checks that detect unstyled or raw-document fallback.

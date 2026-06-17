@@ -1,0 +1,31 @@
+{
+  "name": "@drama/ui",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "description": "Drama design-system primitives for browser and embedded hosts",
+  "type": "module",
+  "main": "./dist/esm/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "default": "./dist/esm/index.js"
+    },
+    "./styles.css": "./src/styles.css",
+    "./package.json": "./package.json"
+  },
+  "files": ["dist", "src/styles.css", "README.md", "package.json"],
+  "scripts": {
+    "build": "bun run ../../scripts/build-drama-package.ts .",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0",
+    "typescript": "^5.9.3"
+  }
+}

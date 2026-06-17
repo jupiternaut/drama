@@ -72,6 +72,7 @@ import { TransportConnectionBanner, shouldShowTransportConnectionBanner } from '
 import { getFileManagerName } from '@/lib/platform'
 import { rendererLog } from '@/lib/logger'
 import { ActionRegistryProvider } from '@/actions'
+import { electronHostApi } from '@/host/electron-host-api'
 import { toast } from 'sonner'
 
 type AppState = 'loading' | 'onboarding' | 'reauth' | 'workspace-picker' | 'ready'
@@ -1601,7 +1602,8 @@ export default function App() {
     openFileExternal: async (path) => {
       try {
         // eslint-disable-next-line craft-links/no-direct-file-open
-        await window.electronAPI.openFile(path)
+        const result = await electronHostApi.shell.openFile?.(path)
+        if (result && !result.ok) throw new Error(result.error ?? 'Open file failed')
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown error'
         console.error('Failed to open file:', error)
@@ -1612,7 +1614,8 @@ export default function App() {
     },
     openUrl: async (url) => {
       try {
-        await window.electronAPI.openUrl(url)
+        const result = await electronHostApi.shell.openUrl(url)
+        if (!result.ok) throw new Error(result.error ?? 'Open URL failed')
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown error'
         console.error('Failed to open URL:', error)
@@ -1629,7 +1632,8 @@ export default function App() {
     },
     showInFolder: async (path) => {
       try {
-        await window.electronAPI.showInFolder(path)
+        const result = await electronHostApi.shell.showInFolder?.(path)
+        if (result && !result.ok) throw new Error(result.error ?? 'Reveal file failed')
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown error'
         console.error('Failed to show in folder:', error)
@@ -1638,9 +1642,12 @@ export default function App() {
         })
       }
     },
-    readFile: (path) => window.electronAPI.readFile(path),
+    readFile: (path) => electronHostApi.files?.readTextFile?.(path) ?? window.electronAPI.readFile(path),
     readFileDataUrl: (path) => window.electronAPI.readFileDataUrl(path),
-    readFileBinary: (path) => window.electronAPI.readFileBinary(path),
+    readFileBinary: async (path) => {
+      const contents = await (electronHostApi.files?.readBinaryFile?.(path) ?? window.electronAPI.readFileBinary(path))
+      return contents instanceof Uint8Array ? contents : new Uint8Array(contents)
+    },
   })
 
   const connectionState = useTransportConnectionState()

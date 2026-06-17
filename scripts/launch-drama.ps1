@@ -1,3 +1,9 @@
+param(
+  [switch]$LegacyElectron,
+  [ValidateSet("graph", "plm", "crew")]
+  [string]$Surface = "graph"
+)
+
 $ErrorActionPreference = "Stop"
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
@@ -27,6 +33,24 @@ function Write-DramaLog {
   $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
   Add-Content -Path $logPath -Encoding UTF8 -Value "[$timestamp] $Message"
 }
+
+Set-Content -Path $logPath -Encoding UTF8 -Value "[$(Get-Date -Format "yyyy-MM-dd HH:mm:ss")] Starting Drama launcher"
+
+if (-not $LegacyElectron) {
+  try {
+    $zenLauncher = Join-Path $PSScriptRoot "launch-zen-drama.ps1"
+    Write-DramaLog "Delegating to Zen Drama main path: $zenLauncher -Surface $Surface"
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $zenLauncher -Surface $Surface
+    $exitCode = $LASTEXITCODE
+    Write-DramaLog "Zen Drama launcher exited with code $exitCode."
+    exit $exitCode
+  } catch {
+    Write-DramaLog "Zen Drama launcher failed: $($_.Exception.Message)"
+    exit 1
+  }
+}
+
+Write-DramaLog "Legacy Electron launch requested."
 
 function Focus-DramaWindow {
   try {
@@ -183,8 +207,6 @@ function Stop-StaleDramaDevProcesses {
     }
   }
 }
-
-Set-Content -Path $logPath -Encoding UTF8 -Value "[$(Get-Date -Format "yyyy-MM-dd HH:mm:ss")] Starting Drama launcher"
 
 try {
   $hasBuiltElectronApp = (

@@ -1,0 +1,318 @@
+:root {
+  color-scheme: dark;
+  --drama-css-ready: ready;
+  --drama-font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --drama-font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  --drama-bg: #08090b;
+  --drama-bg-elevated: #0d0f12;
+  --drama-panel: #121419;
+  --drama-panel-raised: #171a20;
+  --drama-surface: rgba(21, 23, 29, 0.82);
+  --drama-surface-strong: rgba(11, 12, 15, 0.96);
+  --drama-surface-soft: rgba(255, 255, 255, 0.04);
+  --drama-surface-hover: rgba(255, 255, 255, 0.07);
+  --drama-surface-selected: rgba(255, 255, 255, 0.105);
+  --drama-border: rgba(255, 255, 255, 0.085);
+  --drama-border-strong: rgba(255, 255, 255, 0.16);
+  --drama-border-soft: rgba(255, 255, 255, 0.055);
+  --drama-text: rgba(248, 250, 252, 0.94);
+  --drama-text-muted: rgba(226, 232, 240, 0.60);
+  --drama-text-subtle: rgba(226, 232, 240, 0.40);
+  --drama-text-faint: rgba(226, 232, 240, 0.28);
+  --drama-accent: #9bb7ff;
+  --drama-accent-soft: rgba(155, 183, 255, 0.12);
+  --drama-accent-strong: #e0d3ff;
+  --drama-success: #56d69e;
+  --drama-warning: #e5b85b;
+  --drama-danger: #ef7f8d;
+  --drama-info: #88b7f8;
+  --drama-radius-xs: 4px;
+  --drama-radius-sm: 6px;
+  --drama-radius-md: 8px;
+  --drama-radius-lg: 10px;
+  --drama-radius-xl: 12px;
+  --drama-space-1: 4px;
+  --drama-space-2: 8px;
+  --drama-space-3: 12px;
+  --drama-space-4: 16px;
+  --drama-space-5: 20px;
+  --drama-transition: 150ms ease;
+  --drama-shadow-panel: 0 18px 48px rgba(0, 0, 0, 0.30);
+  --drama-shadow-card: 0 14px 32px rgba(0, 0, 0, 0.24);
+  background: var(--drama-bg);
+  color: var(--drama-text);
+  font-family: var(--drama-font-sans);
+}
+
+:root[data-host="zen"] {
+  --drama-bg: var(--zen-main-browser-background, #101010);
+  --drama-surface: color-mix(in srgb, var(--zen-colors-tertiary, #151515) 78%, transparent);
+  --drama-surface-strong: color-mix(in srgb, var(--zen-main-browser-background, #101010) 92%, transparent);
+  --drama-border: var(--zen-colors-border, rgba(255, 255, 255, 0.12));
+  --drama-border-strong: color-mix(in srgb, var(--drama-border) 72%, white 16%);
+  --drama-accent: var(--zen-primary-color, #8fb8ff);
+  --drama-radius-xs: max(4px, calc(var(--zen-border-radius, 7px) - 3px));
+  --drama-radius-sm: max(5px, calc(var(--zen-border-radius, 7px) - 1px));
+  --drama-radius-md: var(--zen-border-radius, 7px);
+  --drama-radius-lg: calc(var(--zen-border-radius, 7px) + 2px);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  min-width: 0;
+  min-height: 100vh;
+  overflow: hidden;
+  background: var(--drama-bg);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+}
+
+.drama-css-probe {
+  --drama-css-ready: ready;
+}
+
+.drama-workbench-tool-button {
+  display: inline-flex;
+  height: 28px;
+  min-width: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid transparent;
+  border-radius: var(--drama-radius-md);
+  background: transparent;
+  color: var(--drama-text-muted);
+  cursor: pointer;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  transition:
+    background var(--drama-transition),
+    border-color var(--drama-transition),
+    color var(--drama-transition);
+}
+
+.drama-workbench-tool-button-icon {
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+  align-items: center;
+  justify-content: center;
+}
+
+.drama-workbench-tool-button-svg {
+  width: 14px;
+  height: 14px;
+}
+
+.drama-workbench-tool-button-label {
+  font-size: 11px;
+  line-height: 1;
+}
+
+.drama-workbench-tool-button:hover,
+.drama-workbench-tool-button:focus-visible {
+  border-color: var(--drama-border);
+  background: var(--drama-surface-hover);
+  color: var(--drama-text);
+  outline: none;
+}
+
+.drama-workbench-tool-button[data-active="true"] {
+  border-color: var(--drama-border-strong);
+  background: var(--drama-surface-selected);
+  color: var(--drama-text);
+}
+
+.drama-status-badge {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--drama-border);
+  border-radius: var(--drama-radius-md);
+  background: var(--drama-surface-soft);
+  color: var(--drama-text-muted);
+  font-family: var(--drama-font-mono);
+  font-size: 10px;
+  font-weight: 650;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.drama-status-badge-dot {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: currentColor;
+  box-shadow: 0 0 0 2px color-mix(in srgb, currentColor 14%, transparent);
+}
+
+.drama-status-badge[data-tone="success"] {
+  border-color: color-mix(in srgb, var(--drama-success) 22%, transparent);
+  background: color-mix(in srgb, var(--drama-success) 8%, transparent);
+  color: rgba(187, 247, 208, 0.86);
+}
+
+.drama-status-badge[data-tone="warning"] {
+  border-color: color-mix(in srgb, var(--drama-warning) 24%, transparent);
+  background: color-mix(in srgb, var(--drama-warning) 8%, transparent);
+  color: rgba(253, 230, 138, 0.88);
+}
+
+.drama-status-badge[data-tone="danger"] {
+  border-color: color-mix(in srgb, var(--drama-danger) 24%, transparent);
+  background: color-mix(in srgb, var(--drama-danger) 8%, transparent);
+  color: rgba(254, 202, 202, 0.88);
+}
+
+.drama-status-badge[data-tone="info"] {
+  border-color: color-mix(in srgb, var(--drama-info) 24%, transparent);
+  background: color-mix(in srgb, var(--drama-info) 8%, transparent);
+  color: rgba(191, 219, 254, 0.88);
+}
+
+.drama-button,
+.drama-icon-button {
+  border: 1px solid transparent;
+  color: var(--drama-text-muted);
+  cursor: pointer;
+  transition:
+    background var(--drama-transition),
+    border-color var(--drama-transition),
+    color var(--drama-transition),
+    opacity var(--drama-transition);
+}
+
+.drama-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: var(--drama-radius-md);
+  font-weight: 650;
+}
+
+.drama-button[data-size="xs"] {
+  height: 26px;
+  padding: 0 8px;
+  font-size: 11px;
+}
+
+.drama-button[data-size="sm"] {
+  height: 30px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.drama-button[data-size="md"] {
+  height: 36px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+.drama-button[data-variant="solid"] {
+  border-color: color-mix(in srgb, var(--drama-accent) 22%, transparent);
+  background: color-mix(in srgb, var(--drama-accent) 14%, rgba(255, 255, 255, 0.04));
+  color: var(--drama-text);
+}
+
+.drama-button[data-variant="outline"] {
+  border-color: var(--drama-border);
+  background: rgba(255, 255, 255, 0.038);
+}
+
+.drama-button[data-variant="ghost"],
+.drama-icon-button {
+  background: transparent;
+}
+
+.drama-button[data-variant="danger"] {
+  border-color: color-mix(in srgb, var(--drama-danger) 28%, transparent);
+  background: color-mix(in srgb, var(--drama-danger) 10%, transparent);
+  color: rgba(254, 202, 202, 0.9);
+}
+
+.drama-button:hover,
+.drama-button:focus-visible,
+.drama-icon-button:hover,
+.drama-icon-button:focus-visible {
+  border-color: var(--drama-border-strong);
+  background: var(--drama-surface-hover);
+  color: var(--drama-text);
+  outline: none;
+}
+
+.drama-button:disabled,
+.drama-icon-button:disabled {
+  pointer-events: none;
+  opacity: 0.48;
+}
+
+.drama-icon-button {
+  display: inline-grid;
+  place-items: center;
+  border-radius: var(--drama-radius-sm);
+}
+
+.drama-icon-button[data-size="sm"] {
+  width: 28px;
+  height: 28px;
+}
+
+.drama-icon-button[data-size="md"] {
+  width: 32px;
+  height: 32px;
+}
+
+.drama-panel-header {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--drama-space-3);
+}
+
+.drama-panel-header-main,
+.drama-panel-header-actions {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--drama-space-2);
+}
+
+.drama-panel-header-actions {
+  flex: 0 0 auto;
+}
+
+.drama-panel-header-title {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--drama-text);
+  font-size: 13px;
+  font-weight: 720;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -1,0 +1,47 @@
+{
+  "name": "@drama/graph",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "description": "Drama graph operations and Storylet compatibility adapter",
+  "type": "module",
+  "main": "./dist/esm/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "default": "./dist/esm/index.js"
+    },
+    "./storylet-types": {
+      "types": "./dist/types/storylet-types.d.ts",
+      "import": "./dist/esm/storylet-types.js",
+      "default": "./dist/esm/storylet-types.js"
+    },
+    "./ipc-contract": {
+      "types": "./dist/types/ipc-contract.d.ts",
+      "import": "./dist/esm/ipc-contract.js",
+      "default": "./dist/esm/ipc-contract.js"
+    },
+    "./node-store": {
+      "types": "./dist/types/node-store.d.ts",
+      "import": "./dist/esm/node-store.js",
+      "default": "./dist/esm/node-store.js"
+    },
+    "./project-files": {
+      "types": "./dist/types/project-files.d.ts",
+      "import": "./dist/esm/project-files.js",
+      "default": "./dist/esm/project-files.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": ["dist", "README.md", "package.json"],
+  "scripts": {
+    "build": "bun run ../../scripts/build-drama-package.ts .",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@drama/core": "workspace:*"
+  }
+}

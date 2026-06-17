@@ -131,36 +131,9 @@ import { OAuthFlowStore } from '@craft-agent/shared/auth'
 import { registerThumbnailScheme, registerThumbnailHandler } from './thumbnail-protocol'
 import log, { isDebugMode, mainLog, getLogFilePath, getMessagingGatewayLogFilePath, messagingGatewayLog } from './logger'
 import { PlotPilotRuntimeManager, resolveDefaultPlotPilotProjectRoot } from './plotpilot-runtime'
-import { DramaGraphStore } from './drama-graph-store'
-import { recordDramaProjectFile } from './drama-project-files'
-import { createEmptyDramaGraph, dramaGraphFromStoryletState } from '../shared/drama-graph'
-import {
-  applyPlotPilotChapterToStoryletGraph,
-  buildStoryletBridgeSnapshot,
-  type StoryletBridgeLoadOptions,
-  type StoryletChapterWritebackFileResult,
-  type StoryletChapterWritebackRequest,
-} from '../shared/storylet-plotpilot-bridge'
-import type {
-  DramaGraphLoadOptions,
-  DramaGraphLoadResult,
-  DramaGraphHistoryRequest,
-  DramaGraphHistoryResult,
-  DramaGraphRestoreBackupRequest,
-  DramaGraphDraftUpsertRequest,
-  DramaGraphEdgeCreateRequest,
-  DramaGraphEdgeDeleteRequest,
-  DramaGraphEdgeUpdateRequest,
-  DramaGraphTaskBindingUpsertRequest,
-  DramaGraphTaskBindingDeleteRequest,
-  DramaGraphMutationResult,
-  DramaGraphNodeCreateRequest,
-  DramaGraphNodeDeleteRequest,
-  DramaGraphNodeUpdateRequest,
-  DramaGraphNodePositionUpdateRequest,
-  DramaProjectFileRecordRequest,
-  DramaProjectFileRecordResult,
-} from '../shared/types'
+import { registerDramaGraphIpc } from './drama-graph-ipc'
+import { registerDramaPlmIpc } from './plotpilot-ipc'
+import { registerDramaCrewIpc } from './skill-crew-ipc'
 import { setPerfEnabled, enableDebug } from '@craft-agent/shared/utils'
 import { registerPiModelResolver } from '@craft-agent/shared/config'
 import { getPiModelsForAuthProvider, getAllPiModels } from '@craft-agent/shared/config'
@@ -175,17 +148,17 @@ import type { TaskStatus } from '../shared/flow-schemas'
 import { checkForUpdatesOnLaunch, setAutoUpdateEventSink, isUpdating, setBeforeUpdateQuitHook } from './auto-update'
 import type { EventSink } from '@craft-agent/server-core/transport'
 import { validateGitBashPath, checkVCRedistInstalled } from '@craft-agent/server-core/services'
-import { getSkillCrewRoomPolicy, normalizeSkillMomentSlug } from './skill-crew/room-policies'
-import { resolveAgentOSBrowserUseCapability } from './skill-crew/agentos-browser-use'
+import { getSkillCrewRoomPolicy, normalizeSkillMomentSlug } from '@drama/crew/room-policies'
+import { resolveAgentOSBrowserUseCapability } from '@drama/crew/agentos-browser-use'
 import {
   buildSkillActorMemoryRecords,
   type SkillActorMemoryRecord,
-} from './skill-crew/skill-actor-memory'
-import type { SkillActorDecisionTrace, SkillActorStateUpdate } from './skill-crew/skill-actor-runtime'
+} from '@drama/crew/skill-actor-memory'
+import type { SkillActorDecisionTrace, SkillActorStateUpdate } from '@drama/crew/skill-actor-runtime'
 import {
   applySkillMomentShowFeedbackCalibration,
   buildSkillMomentShowFeedbackCalibration,
-} from './skill-crew/show-score-calibration'
+} from '@drama/crew/show-score-calibration'
 import {
   applySkillMomentVisibility,
   applySkillMomentRepairPass,
@@ -199,7 +172,7 @@ import {
   buildSkillMomentNextRoundHooks,
   buildSkillMomentRelationshipEvents,
   buildSkillMomentShowQualityIssues,
-} from './skill-crew/demo-theater-control'
+} from '@drama/crew/demo-theater-control'
 import {
   executeRealSkillMomentCritiquePlans,
   executeRealSkillMomentPlans,
@@ -210,15 +183,15 @@ import {
   type SkillMomentRealExecutionResult,
   type SkillMomentRealCritiquePublication,
   type SkillMomentRealPublication,
-} from './skill-crew/skill-moments-real-execution'
-import { runAgentOSBraveChatGptImagePrompt } from './skill-crew/agentos-browser-use-runner'
+} from '@drama/crew/skill-moments-real-execution'
+import { runAgentOSBraveChatGptImagePrompt } from '@drama/crew/agentos-browser-use-runner'
 import {
   buildWriterRoomCritiqueBody,
   buildWriterRoomMockMomentBody,
   buildWriterRoomMomentPlans,
   WRITER_ROOM_MOCK_PHASES,
   writerArtifactTag,
-} from './skill-crew/writer-room-mock'
+} from '@drama/crew/writer-room-mock'
 
 // Initialize electron-log for renderer process support
 log.initialize()
@@ -337,17 +310,6 @@ function getPlotPilotRuntime(): PlotPilotRuntimeManager {
     })
   }
   return plotPilotRuntime
-}
-
-function resolveStoryletGraphPath(options?: StoryletBridgeLoadOptions): string {
-  return options?.path
-    ?? process.env.STORYLET_GRAPH_PATH
-    ?? join(homedir(), 'Downloads', 'Storylet-Codex', '.data', 'storylet-current.graph.json')
-}
-
-function storyletBackupPath(graphPath: string, updatedAt: number): string {
-  const stamp = new Date(updatedAt).toISOString().replace(/[:.]/g, '-')
-  return `${graphPath}.${stamp}.bak`
 }
 
 function resolveWorkspaceRootForEvent(event: IpcMainInvokeEvent): string {
@@ -5020,361 +4982,16 @@ app.whenReady().then(async () => {
         }
       })
 
-      ipcMain.handle('plotpilot:runtime:status', async () => {
-        return await getPlotPilotRuntime().status({ checkHealth: true })
+      registerDramaPlmIpc({
+        ipcMain,
+        getRuntime: getPlotPilotRuntime,
       })
 
-      ipcMain.handle('plotpilot:runtime:start', async (_event, options) => {
-        return await getPlotPilotRuntime().start(options)
+      registerDramaGraphIpc({
+        ipcMain,
+        resolveWorkspaceRoot: resolveWorkspaceRootForEvent,
+        logger: mainLog,
       })
-
-      ipcMain.handle('plotpilot:runtime:stop', async () => {
-        return await getPlotPilotRuntime().stop({ forceAdopted: true })
-      })
-
-      ipcMain.handle('plotpilot:runtime:restart', async (_event, options) => {
-        return await getPlotPilotRuntime().restart(options)
-      })
-
-      ipcMain.handle('plotpilot:runtime:logs', async () => {
-        return getPlotPilotRuntime().getLogs()
-      })
-
-      ipcMain.handle('drama:graph:load', async (event, options?: DramaGraphLoadOptions): Promise<DramaGraphLoadResult> => {
-        const workspaceRoot = resolveWorkspaceRootForEvent(event)
-        const store = new DramaGraphStore({ workspaceRoot })
-        const storyletPath = options?.storyletPath ?? resolveStoryletGraphPath(options ? { path: options.storyletPath } : undefined)
-        const requestedGraphId = options?.graphId?.trim()
-        const shouldImport = options?.importStoryletIfMissing ?? true
-        const defaultGraphId = 'default'
-
-        if (requestedGraphId) {
-          try {
-            return { graph: await store.loadGraph(requestedGraphId), path: store.graphPath(requestedGraphId), imported: false }
-          } catch (error) {
-            if (!shouldImport) throw error
-          }
-        }
-
-        let snapshot: ReturnType<typeof buildStoryletBridgeSnapshot> | null = null
-        if (shouldImport) {
-          try {
-            const raw = await readFile(storyletPath, 'utf8')
-            snapshot = buildStoryletBridgeSnapshot(JSON.parse(raw), { sourcePath: storyletPath })
-          } catch (error) {
-            const code = error instanceof Error ? (error as NodeJS.ErrnoException).code : undefined
-            if (code !== 'ENOENT') {
-              mainLog.warn('[drama:graph:load] Failed to read Storylet source:', error)
-            } else {
-              mainLog.info('[drama:graph:load] Storylet source missing, initializing native graph')
-            }
-          }
-        }
-
-        const graphId = requestedGraphId ?? snapshot?.storyState.graphId ?? defaultGraphId
-
-        try {
-          return {
-            graph: await store.loadGraph(graphId),
-            path: store.graphPath(graphId),
-            sourcePath: snapshot ? storyletPath : undefined,
-            imported: false,
-          }
-        } catch {
-          if (snapshot) {
-            const graphFromStorylet = dramaGraphFromStoryletState(snapshot.storyState, {
-              sourcePath: storyletPath,
-            })
-            const graph = {
-              ...graphFromStorylet,
-              id: graphId,
-              source: { ...graphFromStorylet.source, graphId },
-              bible: {
-                ...graphFromStorylet.bible,
-                id: `${graphId}-bible`,
-              },
-            }
-            const result = await store.saveGraph(graph, {
-              type: 'graph.imported',
-              actor: 'drama:graph:load',
-              details: {
-                source: 'storylet',
-                sourcePath: storyletPath,
-              },
-            })
-            return {
-              graph,
-              path: result.path,
-              backupPath: result.backupPath,
-              sourcePath: storyletPath,
-              imported: true,
-            }
-          }
-
-          const fallbackGraph = createEmptyDramaGraph({
-            id: graphId,
-            title: 'Drama Graph',
-            source: { path: storyletPath, graphId },
-          })
-          const result = await store.saveGraph(fallbackGraph, {
-            type: 'graph.created',
-            actor: 'drama:graph:load',
-            details: {
-              source: 'native',
-              requestedGraphId,
-            },
-          })
-          return {
-            graph: fallbackGraph,
-            path: result.path,
-            backupPath: result.backupPath,
-            sourcePath: storyletPath,
-            imported: false,
-          }
-        }
-      })
-
-      ipcMain.handle('drama:graph:history', async (
-        event,
-        request: DramaGraphHistoryRequest,
-      ): Promise<DramaGraphHistoryResult> => {
-        const workspaceRoot = resolveWorkspaceRootForEvent(event)
-        const store = new DramaGraphStore({ workspaceRoot })
-        return store.listHistory(request.graphId, {
-          maxBackups: request.maxBackups,
-          maxEvents: request.maxEvents,
-        })
-      })
-
-      ipcMain.handle('drama:projectFile:record', async (
-        event,
-        request: DramaProjectFileRecordRequest,
-      ): Promise<DramaProjectFileRecordResult> => {
-        const workspaceRoot = resolveWorkspaceRootForEvent(event)
-        return recordDramaProjectFile({
-          workspaceRoot,
-          request,
-        })
-      })
-
-      ipcMain.handle('drama:graph:restoreBackup', async (
-        event,
-        request: DramaGraphRestoreBackupRequest,
-      ): Promise<DramaGraphMutationResult> => {
-        const workspaceRoot = resolveWorkspaceRootForEvent(event)
-        const store = new DramaGraphStore({ workspaceRoot })
-        const { graph, result } = await store.restoreBackup(request.graphId, request.backupPath, {
-          type: 'graph.restored',
-          actor: 'drama:graph',
-        })
-        return {
-          graph,
-          path: result.path,
-          backupPath: result.backupPath,
-        }
-      })
-
-      ipcMain.handle('drama:graph:updateNodePositions', async (
-        event,
-        request: DramaGraphNodePositionUpdateRequest,
-      ): Promise<DramaGraphMutationResult> => {
-        const workspaceRoot = resolveWorkspaceRootForEvent(event)
-        const store = new DramaGraphStore({ workspaceRoot })
-        const { graph, result } = await store.updateNodePositions(request.graphId, request.updates, {
-          type: 'graph.nodes.position.updated',
-          actor: 'drama:graph',
-        })
-        return {
-          graph,
-          path: result.path,
-          backupPath: result.backupPath,
-        }
-      })
-
-      ipcMain.handle('drama:graph:updateNode', async (
-        event,
-        request: DramaGraphNodeUpdateRequest,
-      ): Promise<DramaGraphMutationResult> => {
-        const workspaceRoot = resolveWorkspaceRootForEvent(event)
-        const store = new DramaGraphStore({ workspaceRoot })
-        const { graph, result } = await store.updateNode(request.graphId, request.update, {
-          type: 'graph.node.updated',
-          actor: 'drama:graph',
-        })
-        return {
-          graph,
-          path: result.path,
-          backupPath: result.backupPath,
-        }
-      })
-
-      ipcMain.handle('drama:graph:createNode', async (
-        event,
-        request: DramaGraphNodeCreateRequest,
-      ): Promise<DramaGraphMutationResult> => {
-        const workspaceRoot = resolveWorkspaceRootForEvent(event)
-        const store = new DramaGraphStore({ workspaceRoot })
-        const { graph, result } = await store.createNode(request.graphId, request.input, {
-          type: 'graph.node.created',
-          actor: 'drama:graph',
-        })
-        return {
-          graph,
-          path: result.path,
-          backupPath: result.backupPath,
-        }
-      })
-
-      ipcMain.handle('drama:graph:deleteNode', async (
-        event,
-        request: DramaGraphNodeDeleteRequest,
-      ): Promise<DramaGraphMutationResult> => {
-        const workspaceRoot = resolveWorkspaceRootForEvent(event)
-        const store = new DramaGraphStore({ workspaceRoot })
-        const { graph, result } = await store.deleteNode(request.graphId, request.input, {
-          type: 'graph.node.deleted',
-          actor: 'drama:graph',
-        })
-        return {
-          graph,
-          path: result.path,
-          backupPath: result.backupPath,
-        }
-      })
-
-      ipcMain.handle('drama:graph:upsertDraft', async (
-        event,
-        request: DramaGraphDraftUpsertRequest,
-      ): Promise<DramaGraphMutationResult> => {
-        const workspaceRoot = resolveWorkspaceRootForEvent(event)
-        const store = new DramaGraphStore({ workspaceRoot })
-        const { graph, result } = await store.upsertDraft(request.graphId, request.input, {
-          type: 'graph.draft.upserted',
-          actor: 'drama:plm',
-        })
-        return {
-          graph,
-          path: result.path,
-          backupPath: result.backupPath,
-        }
-      })
-
-      ipcMain.handle('drama:graph:upsertTaskBinding', async (
-        event,
-        request: DramaGraphTaskBindingUpsertRequest,
-      ): Promise<DramaGraphMutationResult> => {
-        const workspaceRoot = resolveWorkspaceRootForEvent(event)
-        const store = new DramaGraphStore({ workspaceRoot })
-        const { graph, result } = await store.upsertTaskBinding(request.graphId, request.input, {
-          type: 'graph.taskBinding.upserted',
-          actor: 'drama:graph',
-        })
-        return {
-          graph,
-          path: result.path,
-          backupPath: result.backupPath,
-        }
-      })
-
-      ipcMain.handle('drama:graph:deleteTaskBinding', async (
-        event,
-        request: DramaGraphTaskBindingDeleteRequest,
-      ): Promise<DramaGraphMutationResult> => {
-        const workspaceRoot = resolveWorkspaceRootForEvent(event)
-        const store = new DramaGraphStore({ workspaceRoot })
-        const { graph, result } = await store.deleteTaskBinding(request.graphId, request.input, {
-          type: 'graph.taskBinding.deleted',
-          actor: 'drama:graph',
-        })
-        return {
-          graph,
-          path: result.path,
-          backupPath: result.backupPath,
-        }
-      })
-
-      ipcMain.handle('drama:graph:updateEdge', async (
-        event,
-        request: DramaGraphEdgeUpdateRequest,
-      ): Promise<DramaGraphMutationResult> => {
-        const workspaceRoot = resolveWorkspaceRootForEvent(event)
-        const store = new DramaGraphStore({ workspaceRoot })
-        const { graph, result } = await store.updateEdge(request.graphId, request.update, {
-          type: 'graph.edge.updated',
-          actor: 'drama:graph',
-        })
-        return {
-          graph,
-          path: result.path,
-          backupPath: result.backupPath,
-        }
-      })
-
-      ipcMain.handle('drama:graph:createEdge', async (
-        event,
-        request: DramaGraphEdgeCreateRequest,
-      ): Promise<DramaGraphMutationResult> => {
-        const workspaceRoot = resolveWorkspaceRootForEvent(event)
-        const store = new DramaGraphStore({ workspaceRoot })
-        const { graph, result } = await store.createEdge(request.graphId, request.input, {
-          type: 'graph.edge.created',
-          actor: 'drama:graph',
-        })
-        return {
-          graph,
-          path: result.path,
-          backupPath: result.backupPath,
-        }
-      })
-
-      ipcMain.handle('drama:graph:deleteEdge', async (
-        event,
-        request: DramaGraphEdgeDeleteRequest,
-      ): Promise<DramaGraphMutationResult> => {
-        const workspaceRoot = resolveWorkspaceRootForEvent(event)
-        const store = new DramaGraphStore({ workspaceRoot })
-        const { graph, result } = await store.deleteEdge(request.graphId, request.edgeId, {
-          type: 'graph.edge.deleted',
-          actor: 'drama:graph',
-        })
-        return {
-          graph,
-          path: result.path,
-          backupPath: result.backupPath,
-        }
-      })
-
-      ipcMain.handle('storylet:bridge:snapshot', async (_event, options?: StoryletBridgeLoadOptions) => {
-        const graphPath = resolveStoryletGraphPath(options)
-        const raw = await readFile(graphPath, 'utf8')
-        return buildStoryletBridgeSnapshot(JSON.parse(raw), {
-          sourcePath: graphPath,
-          novelIdPrefix: options?.novelIdPrefix,
-        })
-      })
-
-      ipcMain.handle('storylet:bridge:writeChapter', async (_event, request: StoryletChapterWritebackRequest): Promise<StoryletChapterWritebackFileResult> => {
-        const graphPath = resolveStoryletGraphPath(request)
-        const raw = await readFile(graphPath, 'utf8')
-        const graph = JSON.parse(raw)
-        const updatedAt = typeof request.now === 'function' ? request.now() : request.now ?? Date.now()
-        const backupPath = storyletBackupPath(graphPath, updatedAt)
-        await mkdir(dirname(backupPath), { recursive: true })
-        await writeFile(backupPath, raw, 'utf8')
-
-        const result = applyPlotPilotChapterToStoryletGraph(graph, request.chapter, {
-          now: updatedAt,
-          scriptStatus: request.scriptStatus,
-        })
-        await writeFile(graphPath, `${JSON.stringify(result.graph, null, 2)}\n`, 'utf8')
-
-        return {
-          path: graphPath,
-          backupPath,
-          summary: result.summary,
-        }
-      })
-
       // Transfer session to another workspace — orchestrated in main process
       // so large bundles can be moved directly between owning servers.
       ipcMain.handle('session:transferToRemoteWorkspace', async (_event, sessionId: string, targetWorkspaceId: string, sessionIndex?: number, sessionCount?: number) => {
@@ -5521,43 +5138,25 @@ app.whenReady().then(async () => {
         return await getGitInfo(dirPath)
       })
 
-      ipcMain.handle('skill-crew:run-codex-skill', async (_event, args: {
-        prompt: string
-        workingDirectory?: string
-        model?: string
-        timeoutMs?: number
-        reasoningEffort?: 'low' | 'medium' | 'high' | 'xhigh'
-      }) => {
-        return await runCodexSkillExec(args)
-      })
-
-      ipcMain.handle('skill-crew:record-feedback', async (_event, args: SkillFeedbackRecordInput) => {
-        return await recordSkillFeedbackSample(args)
-      })
-
-      ipcMain.handle('skill-moments:list', async (_event, args: SkillMomentListInput) => {
-        return await listSkillMoments(args)
-      })
-
-      ipcMain.handle('skill-moments:record-feedback', async (_event, args: SkillMomentFeedbackRecordInput) => {
-        return await recordSkillMomentFeedback(args)
-      })
-
-      ipcMain.handle('skill-crew:refresh-skills', async (_event, workspaceId: string, workingDirectory?: string) => {
-        const workspace = getWorkspaceByNameOrId(workspaceId)
-        if (!workspace) {
-          throw new Error(`Workspace not found: ${workspaceId}`)
-        }
-        const effectiveWorkingDir = workingDirectory && existsSync(workingDirectory)
-          ? workingDirectory
-          : undefined
-        const { invalidateSkillsCache, loadAllSkills } = await import('@craft-agent/shared/skills')
-        invalidateSkillsCache()
-        return loadAllSkills(workspace.rootPath, effectiveWorkingDir)
-      })
-
-      ipcMain.handle('skill-crew:import-skill', async (_event, args: SkillCrewImportSkillArgs) => {
-        return await importSkillToCrewFolder(args)
+      registerDramaCrewIpc({
+        ipcMain,
+        runCodexSkill: runCodexSkillExec,
+        recordSkillFeedback: recordSkillFeedbackSample,
+        listSkillMoments,
+        recordSkillMomentFeedback,
+        refreshSkills: async (workspaceId: string, workingDirectory?: string) => {
+          const workspace = getWorkspaceByNameOrId(workspaceId)
+          if (!workspace) {
+            throw new Error(`Workspace not found: ${workspaceId}`)
+          }
+          const effectiveWorkingDir = workingDirectory && existsSync(workingDirectory)
+            ? workingDirectory
+            : undefined
+          const { invalidateSkillsCache, loadAllSkills } = await import('@craft-agent/shared/skills')
+          invalidateSkillsCache()
+          return loadAllSkills(workspace.rootPath, effectiveWorkingDir)
+        },
+        importSkillToCrewFolder,
       })
 
       ipcMain.handle('flow:project:check-status', async (_event, workspaceRoot: string) => {

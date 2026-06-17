@@ -1,0 +1,49 @@
+{
+  "name": "@drama/graph-ui",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "description": "Drama Graph React UI surface",
+  "type": "module",
+  "main": "./dist/esm/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "default": "./dist/esm/index.js"
+    },
+    "./StoryletNativeGraphPage": {
+      "types": "./dist/types/StoryletNativeGraphPage.d.ts",
+      "import": "./dist/esm/StoryletNativeGraphPage.js",
+      "default": "./dist/esm/StoryletNativeGraphPage.js"
+    },
+    "./StoryletNativeGraphContainer": {
+      "types": "./dist/types/StoryletNativeGraphContainer.d.ts",
+      "import": "./dist/esm/StoryletNativeGraphContainer.js",
+      "default": "./dist/esm/StoryletNativeGraphContainer.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": ["dist", "README.md", "package.json"],
+  "scripts": {
+    "build": "bun run ../../scripts/build-drama-package.ts .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@drama/core": "workspace:*",
+    "@drama/graph": "workspace:*",
+    "@drama/ui": "workspace:*",
+    "@xyflow/react": "^12.10.2",
+    "lucide-react": "^0.561.0",
+    "react": "^18.3.1"
+  },
+  "peerDependencies": {
+    "react-dom": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "typescript": "^5.9.3"
+  }
+}

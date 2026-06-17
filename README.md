@@ -82,8 +82,22 @@ irm https://agents.craft.do/install-app.ps1 | iex
 git clone https://github.com/lukilabs/craft-agents-oss.git
 cd craft-agents-oss
 bun install
-bun run electron:start
+bun run drama:start:win
 ```
+
+On Windows, Drama now starts through the Zen Browser main path by default. To assemble a local runnable Zen Drama directory:
+
+```powershell
+bun run zen:drama:package:win
+bun run zen:drama:package:verify:win
+bun run zen:drama:package:verify:plm:win
+bun run zen:drama:install:win
+bun run zen:drama:install:verify:plm:win
+bun run zen:drama:install:verify:panel:win
+powershell -NoProfile -ExecutionPolicy Bypass -File .\dist\zen-drama-win-x64\Start-Drama-Zen.ps1
+```
+
+The Windows Zen Drama package includes the built Zen browser, Drama browser shell, standalone Drama runtime, and the local PlotPilot v4.6 source plus `.venv` when available. The installer copies that package to `%LOCALAPPDATA%\Programs\DramaZen` and updates the desktop shortcut to launch from the installed directory.
 
 ## Features
 
@@ -350,7 +364,9 @@ craft-cli --validate-server --url ws://127.0.0.1:9100 --token <token>
 craft-agent/
 ├── apps/
 │   ├── cli/                   # Terminal client (CLI)
-│   └── electron/              # Desktop GUI (primary)
+│   ├── drama-browser-shell/   # Drama Graph / PLM / Crew web surface
+│   ├── drama-runtime/         # Local runtime for filesystem, PLM, and Crew
+│   └── electron/              # Legacy desktop GUI compatibility path
 │       └── src/
 │           ├── main/          # Electron main process
 │           ├── preload/       # Context bridge
@@ -374,7 +390,25 @@ craft-agent/
 # Hot reload development
 bun run electron:dev
 
-# Build and run
+# Build and run the Zen Browser main path on Windows
+bun run drama:start:win
+
+# Build a local Zen Drama package directory
+bun run zen:drama:package:win
+
+# Verify packaged Graph shell and bundled PlotPilot sidecar
+bun run zen:drama:package:verify:plm:win
+
+# Install the package to %LOCALAPPDATA%\Programs\DramaZen
+bun run zen:drama:install:win
+
+# Verify installed shortcut, runtime, and bundled PlotPilot sidecar
+bun run zen:drama:install:verify:plm:win
+
+# Verify the installed Zen chrome panel with Marionette
+bun run zen:drama:install:verify:panel:win
+
+# Legacy Electron compatibility path
 bun run electron:start
 
 # Type checking
@@ -577,7 +611,7 @@ craftagents://action/new-chat                  # Create new session
 | Runtime | [Bun](https://bun.sh/) |
 | AI | [@anthropic-ai/claude-agent-sdk](https://www.npmjs.com/package/@anthropic-ai/claude-agent-sdk) |
 | AI (Pi) | Pi SDK agent server |
-| Desktop | [Electron](https://www.electronjs.org/) + React |
+| Desktop | Zen Browser chrome panel + Drama browser shell; Electron remains a legacy compatibility path |
 | UI | [shadcn/ui](https://ui.shadcn.com/) + Tailwind CSS v4 |
 | Build | esbuild (main) + Vite (renderer) |
 | Credentials | AES-256-GCM encrypted file storage |

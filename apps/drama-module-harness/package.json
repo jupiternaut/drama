@@ -1,0 +1,28 @@
+{
+  "name": "@drama/module-harness",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev --host 127.0.0.1 --port 3197",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@drama/core": "workspace:*",
+    "@drama/crew": "workspace:*",
+    "@drama/graph": "workspace:*",
+    "@drama/graph-ui": "workspace:*",
+    "@drama/host": "workspace:*",
+    "@drama/plm-ui": "workspace:*",
+    "@vitejs/plugin-react": "^5.1.2",
+    "vite": "^6.2.4",
+    "typescript": "^5.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0"
+  }
+}

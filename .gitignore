@@ -20,6 +20,7 @@ logs
 _.log
 drama-*.log
 report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
+.codex-run-logs/
 
 # dotenv environment variable files
 .env
